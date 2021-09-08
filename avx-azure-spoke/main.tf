@@ -14,7 +14,7 @@ resource "azurerm_virtual_network" "avx-spoke-vnet" {
 }
 
 
-# Public Subnet for AVX Spoke GW. Please use subnet length /26 for Insane Mode and /28 for normal mode
+# Public Subnet for AVX Spoke GW. Please use subnet length /26 - /28
 
 resource "azurerm_subnet" "avx-gateway-subnet" {
   count = var.insane_mode ? 0 : 1
@@ -25,14 +25,14 @@ resource "azurerm_subnet" "avx-gateway-subnet" {
 }
 
 resource "azurerm_subnet" "avx-gateway-subnet-hagw" {
-  count =  var.insane_mode ? 0 : (var.ha_gw ? 1 : 0)
+  count =  var.insane_mode ? 0 : 1
   name                 = "avx-gateway-subnet-hagw"
   resource_group_name  = azurerm_resource_group.avx-spoke-rg.name
   virtual_network_name = azurerm_virtual_network.avx-spoke-vnet.name
   address_prefixes     = [var.gw_subnet_cidr_hagw]
 }
 
-# Public Subnet for VM instances
+# Public Subnets for VM instances
 
 resource "azurerm_subnet" "avx-subnet-vm1" {
   name                 = "az-subnet-vm1"
@@ -40,8 +40,6 @@ resource "azurerm_subnet" "avx-subnet-vm1" {
   virtual_network_name = azurerm_virtual_network.avx-spoke-vnet.name
   address_prefixes     = [var.subnet_vm1]
 }
-
-# Priave Subnet for VM instances
 
 resource "azurerm_subnet" "avx-subnet-vm2" {
   name                 = "az-subnet-vm2"
@@ -59,12 +57,18 @@ resource "azurerm_route_table" "vm-azure-rt1" {
   location            = azurerm_resource_group.avx-spoke-rg.location
   resource_group_name = azurerm_resource_group.avx-spoke-rg.name
 
+  # route {
+  #   name                   = "blackhole"
+  #   address_prefix         = "0.0.0.0/0"
+  #   next_hop_type          = "None"  # this is required for Central Egress
+  # }
+
   lifecycle {  # AVX Controller adds routes
   ignore_changes = [route]
   }
 }
 
-resource "azurerm_route_table" "vm-azure-rt2" {  # used for Private Subnet 
+resource "azurerm_route_table" "vm-azure-rt2" {
   name                = "${var.vnet_name}-rt2"
   location            = azurerm_resource_group.avx-spoke-rg.location
   resource_group_name = azurerm_resource_group.avx-spoke-rg.name
@@ -72,7 +76,7 @@ resource "azurerm_route_table" "vm-azure-rt2" {  # used for Private Subnet
   route {
     name                   = "blackhole"
     address_prefix         = "0.0.0.0/0"
-    next_hop_type          = "None" # this is required for Central Egress !!
+    next_hop_type          = "None" # this is required for Central Egress
   }
 
 lifecycle { # AVX Controller adds routes
@@ -102,8 +106,8 @@ vpc_id                            = "${azurerm_virtual_network.avx-spoke-vnet.na
 vpc_reg                           = var.region
 gw_size                           = var.insane_mode ? var.insane_instance_size : var.instance_size
 ha_gw_size                        = var.ha_gw ? (var.insane_mode ? var.insane_instance_size : var.instance_size) : null
-subnet                            = var.gw_subnet_cidr
-ha_subnet                         = var.ha_gw ? var.gw_subnet_cidr_hagw : null
+subnet                            = var.insane_mode ? var.gw_subnet_cidr : azurerm_subnet.avx-gateway-subnet[0].address_prefixes[0]
+ha_subnet                         = var.ha_gw ? (var.insane_mode ? var.gw_subnet_cidr_hagw : azurerm_subnet.avx-gateway-subnet-hagw[0].address_prefixes[0]) : null
 insane_mode                       = var.insane_mode
 enable_active_mesh                = var.active_mesh
 manage_transit_gateway_attachment = false
