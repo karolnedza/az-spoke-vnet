@@ -117,7 +117,7 @@ customized_spoke_vpc_routes       = var.customized_spoke_vpc_routes
 filtered_spoke_vpc_routes         = var.filtered_spoke_vpc_routes
 included_advertised_spoke_routes  = var.included_advertised_spoke_routes
 zone                     = var.ha_gw ? (var.single_az_ha ? null : "az-1") : null
-ha_zone                  = var.insane_mode ? null : (var.ha_gw ? (var.single_az_ha ? null : "az-2") : null)
+ha_zone                  = var.ha_gw ? (var.single_az_ha ? null : "az-2") : null
 }
 
 #### Spoke Attachment to Transit
