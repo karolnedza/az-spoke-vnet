@@ -1,4 +1,5 @@
-### Spoke with Insane Mode Enabled + HA Enabled 
+### Example: Spoke with Insane Mode Enabled + HA Enabled 
+
 module "az-spoke-west-europe-prod" {
   source  = "./avx-azure-spoke"
   region                = "Central US"
@@ -14,10 +15,10 @@ module "az-spoke-west-europe-prod" {
   subnet_vm1          = "10.20.0.128/28"   # here VM lives
   subnet_vm2          = "10.20.0.144/28"   # here VM lives
   transit_gw           = "az-transit-hpe-tgw"
-  security_domain      = "prod"
+  security_domain      = "prod"  # comment out if there is no security_domain
 }
 
-# ### Spoke with Insane Mode Disabled + HA Disabled  
+### Example:  Spoke with Insane Mode Disabled + HA Disabled  
 
 module "az-spoke-west-europe-prod-spoke-2" {
   source  = "./avx-azure-spoke"
