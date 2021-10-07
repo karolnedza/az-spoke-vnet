@@ -7,7 +7,7 @@ module "az-spoke-west-europe-prod" {
   vnet_cidr             = "10.20.0.0/20"
   gw_name               = "az-spoke1-west-eu-prod"
   vnet_name             = "az-spoke1-west-eu-vnet-prod"
-  insane_mode            = true  # default is true,
+  insane_mode            = true  # default is false,
   ha_gw                  = true  # default is true, this line is not needed here and can be removed
   gw_subnet_cidr           = "10.20.0.0/26"  # must be /26 for Insane Mode
   gw_subnet_cidr_hagw      = "10.20.0.64/26" # must be /26 for Insane Mode 
